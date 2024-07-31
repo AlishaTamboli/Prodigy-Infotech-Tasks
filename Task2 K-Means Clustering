@@ -1,0 +1,54 @@
+import numpy as np
+import pandas as pd
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Step 1: Generate Synthetic Dataset
+np.random.seed(42)
+
+num_customers = 1000
+customer_ids = np.arange(1, num_customers + 1)
+annual_spend = np.random.uniform(100, 5000, num_customers)
+purchase_frequency = np.random.randint(1, 50, num_customers)
+
+data = {
+    'CustomerID': customer_ids,
+    'AnnualSpend': annual_spend,
+    'PurchaseFrequency': purchase_frequency
+}
+
+df = pd.DataFrame(data)
+
+# Step 2: Save Dataset
+df.to_csv('customer_data.csv', index=False)
+
+# Step 3: Data Preprocessing
+# Handling missing values (in this synthetic dataset, there won't be any)
+df = df.dropna()
+
+# Selecting features for clustering
+X = df[['AnnualSpend', 'PurchaseFrequency']]
+
+# Standardizing the data
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Step 4: K-Means Clustering
+kmeans = KMeans(n_clusters=3, random_state=42)
+df['Cluster'] = kmeans.fit_predict(X_scaled)
+
+# Step 5: Visualize Results
+plt.figure(figsize=(10, 6))
+sns.scatterplot(data=df, x='AnnualSpend', y='PurchaseFrequency', hue='Cluster', palette='viridis')
+plt.title('Customer Segmentation')
+plt.xlabel('Annual Spend')
+plt.ylabel('Purchase Frequency')
+plt.legend(title='Cluster')
+plt.show()
+
+# Step 6: Save Results
+df.to_csv('clustered_customers.csv', index=False)
+
+print("Clustering complete. Results saved to 'clustered_customers.csv'.")
